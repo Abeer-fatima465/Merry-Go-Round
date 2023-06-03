@@ -1,2 +1,2 @@
 # Merry-Go-Round
-Using webGL, this project demonstrates the various qualities of HTML and JavaScript.
+Using webGL and the various qualities of HTML and JavaScript. This project demonstrates how cones can be used to create merry go round along with adding texture and shiningness while demonstrating different light position. 
