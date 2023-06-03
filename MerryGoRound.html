@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Merry-Go-Round</title>
+
+<!-- Load up the external javascript files -->
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="AmusementPark.js"></script>
+<script type="text/javascript" src="MarryGoRound.js"></script>	
+<script type="text/javascript" src="coneExercise.js"></script>
+<script type="text/javascript" src="Cone.js"></script>
+<script type="text/javascript" src="textureClass.js"></script>
+
+
+<!-- The Vertex Shader ------------------------------------------------------------------>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+    // Attributes are values that vary from vertex to vertex
+    attribute vec3 vPosition;	// Vertex position data in 3D space
+    attribute vec3 vColor;		// Vertex color data - Not needed for all applications
+
+    uniform vec4 ambientLight, diffuseLight, specularLight;
+    uniform vec4 lightPosition;
+    uniform float shininess;
+
+
+    // Uniform variables are shared for all vertices
+    uniform mat4 vModelView;	// Camera Model View Matrix
+    uniform mat4 vProjection;	// Camera Projection Matrix
+    uniform mat4 vTransformation;	// Model transformation matrix
+    uniform mat4 vNormalTransformation;
+
+    // Varying values are passed from vertex shader to fragment shader, as interpolated values
+    varying vec4 color;		
+
+
+    void
+    main()
+    {
+    vec4 p = (vModelView * vec4(vPosition, 1));
+    vec3 pos = p.xyz;
+    vec3 L;
+
+    if(lightPosition.w == 0.0) {
+        L = normalize(lightPosition.xyz);
+    } else {
+        L = normalize(lightPosition.xyz - pos);
+    }
+
+    vec3 E = -normalize(pos);
+    vec3 H = normalize(L + E);
+
+    vec3 N = normalize((vNormalTransformation * vec4(vPosition,1)).xyz);
+
+    vec4 ambient = ambientLight;
+
+    float Kd = max(dot(L,N), 0.0);
+    vec4 diffuse = Kd * diffuseLight;
+
+    float Ks = pow(max(dot(N,H),0.0), shininess);
+    vec4 specular = Ks * specularLight;
+
+    if(dot(L,N) < 0.0) {  specular = vec4(0.0, 0.0, 0.0, 20.0); }
+
+    color = ambient + diffuse + specular;
+    color.a = 1.0;
+
+    gl_Position = vProjection * vModelView * vTransformation * vec4( vPosition, 1.0 );
+
+    }
+
+</script>
+<script id="fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+    varying vec4 color;  
+    void
+    main()
+    {
+    gl_FragColor = color;
+    }
+</script>	<!-- End of fragment shader -->
+
+</head>
+
+<body>
+    <h3 align="center">Amusement Park<br />
+   Abeer Fatima</h3>
+    <p></p>
+    
+    <canvas id="gl-canvas" width="600" height="400">
+    </canvas>
+       <p><img id="grass" src="grass.jpg" width="600" height="300"/></p>
+        <p class="info">[W] = left, [A] = up, [S] = down, [D] = right,[R] = reset,[F] = Faster</p>
+ </body>
+</html>
